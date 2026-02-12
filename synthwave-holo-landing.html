@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShipperHQ - AI Configuration</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(180deg, #1a0033 0%, #330066 30%, #ff1493 60%, #ff6b35 100%);
+            color: #00f5ff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Perspective grid floor */
+        .grid-floor {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background-image: 
+                linear-gradient(0deg, transparent 24%, rgba(255, 0, 110, 0.3) 25%, rgba(255, 0, 110, 0.3) 26%, transparent 27%, transparent 74%, rgba(255, 0, 110, 0.3) 75%, rgba(255, 0, 110, 0.3) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(0, 245, 255, 0.3) 25%, rgba(0, 245, 255, 0.3) 26%, transparent 27%, transparent 74%, rgba(0, 245, 255, 0.3) 75%, rgba(0, 245, 255, 0.3) 76%, transparent 77%, transparent);
+            background-size: 50px 50px;
+            background-position: 0 0;
+            transform: perspective(500px) rotateX(60deg);
+            transform-origin: center bottom;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* Animated sun/moon */
+        .retro-sun {
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            bottom: 25%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(180deg, #ff006e 0%, #ff6b35 100%);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 60px #ff006e,
+                0 0 120px #ff006e,
+                inset 0 0 40px rgba(0, 0, 0, 0.2);
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        /* Horizontal scanlines on sun */
+        .retro-sun::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 8px,
+                rgba(0, 0, 0, 0.3) 8px,
+                rgba(0, 0, 0, 0.3) 10px
+            );
+        }
+
+        /* Cycling neon sign */
+        .neon-sign {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .neon-icon-group {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+        }
+
+        .neon-icon {
+            width: 80px;
+            height: 80px;
+            stroke-width: 3;
+            fill: none;
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+
+        .neon-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            text-shadow: 0 0 8px currentColor;
+            white-space: nowrap;
+        }
+
+        /* Position each icon group around the edges, avoiding center */
+        .icon-icecream {
+            top: 8%;
+            left: 5%;
+            color: #00f5ff;
+        }
+
+        .icon-icecream .neon-icon {
+            stroke: #00f5ff;
+        }
+
+        .icon-hazmat {
+            top: 8%;
+            right: 5%;
+            color: #ff006e;
+        }
+
+        .icon-hazmat .neon-icon {
+            stroke: #ff006e;
+        }
+
+        .icon-box {
+            bottom: 8%;
+            right: 5%;
+            color: #8b00ff;
+        }
+
+        .icon-box .neon-icon {
+            stroke: #8b00ff;
+        }
+
+        .icon-snowflake {
+            bottom: 8%;
+            left: 5%;
+            color: #00f5ff;
+        }
+
+        .icon-snowflake .neon-icon {
+            stroke: #00f5ff;
+        }
+
+        .icon-fragile {
+            top: 50%;
+            left: 3%;
+            transform: translateY(-50%);
+            color: #ff6b35;
+        }
+
+        .icon-fragile .neon-icon {
+            stroke: #ff6b35;
+        }
+
+        .icon-truck {
+            top: 50%;
+            right: 3%;
+            transform: translateY(-50%);
+            color: #8b00ff;
+        }
+
+        .icon-truck .neon-icon {
+            stroke: #8b00ff;
+        }
+
+        .icon-chicken {
+            bottom: 20%;
+            left: 8%;
+            color: #ff6b35;
+        }
+
+        .icon-chicken .neon-icon {
+            stroke: #ff6b35;
+        }
+
+        /* Smooth fade animation */
+        @keyframes smoothFade {
+            0% { opacity: 0; }
+            8% { opacity: 1; }
+            28% { opacity: 1; }
+            36% { opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        /* Individual icon animations - staggered timing (28s cycle for 7 icons = 4s each) */
+        .icon-icecream {
+            animation: smoothFade 28s infinite;
+            animation-delay: 0s;
+        }
+
+        .icon-hazmat {
+            animation: smoothFade 28s infinite;
+            animation-delay: 4s;
+        }
+
+        .icon-box {
+            animation: smoothFade 28s infinite;
+            animation-delay: 8s;
+        }
+
+        .icon-snowflake {
+            animation: smoothFade 28s infinite;
+            animation-delay: 12s;
+        }
+
+        .icon-fragile {
+            animation: smoothFade 28s infinite;
+            animation-delay: 16s;
+        }
+
+        .icon-truck {
+            animation: smoothFade 28s infinite;
+            animation-delay: 20s;
+        }
+
+        .icon-chicken {
+            animation: smoothFade 28s infinite;
+            animation-delay: 24s;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            z-index: 10;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            color: #ff006e;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            text-shadow: 
+                0 0 10px #ff006e,
+                0 0 20px #ff006e,
+                0 0 40px #ff006e,
+                2px 2px 0 #00f5ff,
+                4px 4px 0 #8b00ff;
+            animation: logoGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            from { text-shadow: 
+                0 0 10px #ff006e,
+                0 0 20px #ff006e,
+                0 0 40px #ff006e,
+                2px 2px 0 #00f5ff,
+                4px 4px 0 #8b00ff; }
+            to { text-shadow: 
+                0 0 20px #ff006e,
+                0 0 40px #ff006e,
+                0 0 60px #ff006e,
+                2px 2px 0 #00f5ff,
+                4px 4px 0 #8b00ff; }
+        }
+
+        .tagline {
+            font-size: 1rem;
+            color: #00f5ff;
+            letter-spacing: 0.3em;
+            text-shadow: 0 0 10px #00f5ff;
+            font-weight: 400;
+        }
+
+        /* Holographic panel container */
+        .holo-panel {
+            background: linear-gradient(135deg, 
+                rgba(255, 0, 110, 0.1) 0%,
+                rgba(139, 0, 255, 0.15) 50%,
+                rgba(0, 245, 255, 0.1) 100%);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(0, 245, 255, 0.5);
+            border-radius: 10px;
+            padding: 40px;
+            position: relative;
+            box-shadow: 
+                0 8px 32px rgba(0, 245, 255, 0.3),
+                inset 0 0 40px rgba(255, 0, 110, 0.1);
+            min-height: 450px;
+        }
+
+        /* Holographic shimmer effect */
+        .holo-panel::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 100%
+            );
+            animation: holoShimmer 15s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes holoShimmer {
+            0% { transform: translateX(-100%) translateY(-100%); }
+            100% { transform: translateX(100%) translateY(100%); }
+        }
+
+        /* Corner brackets (holographic UI detail) */
+        .holo-panel::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
+        .panel-content {
+            position: relative;
+            z-index: 5;
+        }
+
+        .holo-line {
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: materialize 0.8s forwards;
+            font-size: 1rem;
+            line-height: 1.8;
+            position: relative;
+        }
+
+        @keyframes materialize {
+            0% {
+                opacity: 0;
+                transform: translateY(10px);
+                filter: blur(4px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        .system-label {
+            color: #ff006e;
+            text-shadow: 0 0 10px #ff006e;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+        }
+
+        .ai-message {
+            color: #00f5ff;
+            text-shadow: 0 0 8px #00f5ff;
+            font-weight: 400;
+        }
+
+        .user-message {
+            color: #ff6b35;
+            text-shadow: 0 0 8px #ff6b35;
+            font-weight: 400;
+        }
+
+        .input-panel {
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 245, 255, 0.4);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            box-shadow: 
+                0 4px 20px rgba(0, 245, 255, 0.2),
+                inset 0 0 20px rgba(0, 245, 255, 0.05);
+        }
+
+        .input-label {
+            color: #ff006e;
+            margin-right: 15px;
+            font-weight: 700;
+            text-shadow: 0 0 10px #ff006e;
+            font-size: 1rem;
+        }
+
+        #userInput {
+            background: transparent;
+            border: none;
+            color: #00f5ff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            flex: 1;
+            text-shadow: 0 0 8px #00f5ff;
+            font-weight: 400;
+        }
+
+        #userInput::placeholder {
+            color: rgba(0, 245, 255, 0.4);
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background: #00f5ff;
+            animation: cursorBlink 1s infinite;
+            margin-left: 5px;
+            box-shadow: 0 0 10px #00f5ff;
+        }
+
+        @keyframes cursorBlink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .holo-btn {
+            background: linear-gradient(135deg, 
+                rgba(0, 0, 0, 0.5) 0%,
+                rgba(139, 0, 255, 0.3) 100%);
+            border: 2px solid #00f5ff;
+            color: #00f5ff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 0 8px #00f5ff;
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.4);
+        }
+
+        .holo-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(0, 245, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .holo-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .holo-btn:hover {
+            border-color: #00f5ff;
+            color: #ffffff;
+            text-shadow: 0 0 15px #00f5ff, 0 0 25px #00f5ff;
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.7);
+            transform: translateY(-2px);
+        }
+
+        .holo-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2rem;
+            }
+
+            .holo-panel {
+                padding: 25px;
+            }
+
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .neon-sign {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background elements -->
+    <div class="retro-sun"></div>
+    <div class="grid-floor"></div>
+    
+    <!-- Cycling neon sign -->
+    <div class="neon-sign">
+        <!-- Ice cream cone (perishables) -->
+        <div class="neon-icon-group icon-icecream">
+            <svg class="neon-icon" viewBox="0 0 100 100">
+                <!-- Cone -->
+                <path d="M 35 40 L 50 75 L 65 40 Z" />
+                <line x1="40" y1="45" x2="45" y2="60" />
+                <line x1="50" y1="40" x2="50" y2="65" />
+                <line x1="60" y1="45" x2="55" y2="60" />
+                <!-- Rounded scoop top -->
+                <circle cx="50" cy="35" r="15" />
+                <!-- Swirl detail on scoop -->
+                <path d="M 42 30 Q 46 28, 50 30 Q 54 32, 58 30" fill="none" />
+            </svg>
+            <div class="neon-label">Perishables</div>
+        </div>
+        
+        <!-- Hazmat warning (hazardous materials) -->
+        <div class="neon-icon-group icon-hazmat">
+            <svg class="neon-icon" viewBox="0 0 100 100">
+                <path d="M 50 15 L 85 75 L 15 75 Z" />
+                <text x="50" y="65" text-anchor="middle" font-size="40" font-weight="bold" fill="currentColor" stroke="none">!</text>
+            </svg>
+            <div class="neon-label">Hazmat</div>
+        </div>
+        
+        <!-- Large box/package (oversized) -->
+        <div class="neon-icon-group icon-box">
+            <svg class="neon-icon" viewBox="0 0 100 100">
+                <rect x="20" y="35" width="60" height="50" />
+                <line x1="20" y1="60" x2="80" y2="60" />
+                <line x1="50" y1="35" x2="50" y2="85" />
+                <polyline points="50,35 35,25 35,50" />
+                <polyline points="50,35 65,25 65,50" />
+                <line x1="35" y1="25" x2="65" y2="25" />
+            </svg>
+            <div class="neon-label">Oversized</div>
+        </div>
+        
+        <!-- Snowflake (frozen goods) -->
+        <div class="neon-icon-group icon-snowflake">
+            <svg class="neon-icon" viewBox="0 0 100 100">
+                <line x1="50" y1="20" x2="50" y2="80" />
+                <line x1="20" y1="50" x2="80" y2="50" />
+                <line x1="30" y1="30" x2="70" y2="70" />
+                <line x1="70" y1="30" x2="30" y2="70" />
+                <polyline points="50,20 45,28 50,28 55,28" />
+                <polyline points="50,80 45,72 50,72 55,72" />
+                <polyline points="20,50 28,45 28,50 28,55" />
+                <polyline points="80,50 72,45 72,50 72,55" />
+            </svg>
+            <div class="neon-label">Frozen</div>
+        </div>
+        
+        <!-- Fragile/wine glass (delicate items) -->
+        <div class="neon-icon-group icon-fragile">
+            <svg class="neon-icon" viewBox="0 0 100 100">
+                <path d="M 35 25 L 35 40 L 48 55 L 48 70 L 40 70 L 40 75 L 60 75 L 60 70 L 52 70 L 52 55 L 65 40 L 65 25 Z" />
+                <line x1="35" y1="25" x2="65" y2="25" />
+            </svg>
+            <div class="neon-label">Fragile</div>
+        </div>
+        
+        <!-- Truck (freight) -->
+        <div class="neon-icon-group icon-truck">
+            <svg class="neon-icon" viewBox="0 0 100 100">
+                <rect x="15" y="45" width="45" height="30" />
+                <rect x="60" y="35" width="25" height="40" />
+                <line x1="60" y1="55" x2="85" y2="55" />
+                <circle cx="30" cy="75" r="8" />
+                <circle cx="70" cy="75" r="8" />
+                <rect x="65" y="40" width="15" height="10" />
+            </svg>
+            <div class="neon-label">Freight</div>
+        </div>
+        
+        <!-- Chicken (live cargo) -->
+        <div class="neon-icon-group icon-chicken">
+            <svg class="neon-icon" viewBox="0 0 100 100">
+                <!-- Body -->
+                <ellipse cx="50" cy="55" rx="20" ry="25" />
+                <!-- Head -->
+                <circle cx="50" cy="30" r="12" />
+                <!-- Beak -->
+                <path d="M 62 30 L 70 30 L 66 33 Z" />
+                <!-- Comb (top of head) -->
+                <path d="M 45 20 Q 48 15, 50 20 Q 52 15, 55 20" fill="none" />
+                <!-- Wattle (under beak) -->
+                <path d="M 50 38 Q 48 42, 50 45" fill="none" />
+                <!-- Wing -->
+                <path d="M 35 50 Q 30 55, 35 60" fill="none" />
+                <!-- Tail feathers -->
+                <path d="M 30 55 Q 20 50, 22 60 Q 18 55, 20 65" fill="none" />
+                <!-- Legs -->
+                <line x1="45" y1="80" x2="45" y2="88" />
+                <line x1="55" y1="80" x2="55" y2="88" />
+                <!-- Feet -->
+                <polyline points="42,88 45,88 48,88" fill="none" />
+                <polyline points="52,88 55,88 58,88" fill="none" />
+            </svg>
+            <div class="neon-label">Live Cargo</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">SHIPPERHQ</div>
+            <div class="tagline">AI SHIPPING RATE CONFIGURATION</div>
+        </div>
+
+        <div class="holo-panel">
+            <div class="panel-content" id="panelContent">
+                <div class="holo-line">
+                    <span class="system-label">SYSTEM:</span>
+                    <span class="ai-message">Initializing intelligent assistant...</span>
+                </div>
+                <div class="holo-line" style="animation-delay: 0.6s;">
+                    <span class="system-label">AI:</span>
+                    <span class="ai-message">Connection established. Welcome to ShipperHQ configuration.</span>
+                </div>
+                <div class="holo-line" style="animation-delay: 1.2s;">
+                    <span class="system-label">AI:</span>
+                    <span class="ai-message">How can I assist you today?</span>
+                </div>
+
+                <div class="input-panel">
+                    <span class="input-label">INPUT:</span>
+                    <input type="text" id="userInput" placeholder="Enter your query..." autofocus>
+                    <span class="cursor"></span>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="holo-btn" onclick="askQuestion('How do I set up rate shopping?')">
+                        <span>Rate Shopping</span>
+                    </button>
+                    <button class="holo-btn" onclick="askQuestion('What shipping carriers do you support?')">
+                        <span>Carriers</span>
+                    </button>
+                    <button class="holo-btn" onclick="askQuestion('Show me pricing tiers')">
+                        <span>Pricing</span>
+                    </button>
+                    <button class="holo-btn" onclick="askQuestion('I need help with international shipping')">
+                        <span>Shipping Rules</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const panelContent = document.getElementById('panelContent');
+        const userInput = document.getElementById('userInput');
+
+        const responses = {
+            'rate shopping': 'Rate shopping enables real-time carrier comparison across our entire network. Configuration module loading...',
+            'carriers': 'Carrier database accessed. 50+ integrated networks available: USPS, FedEx, UPS, DHL, and regional partners.',
+            'pricing': 'Pricing matrix: TIER-1 [$50/mo] | TIER-2 [$150/mo] | TIER-3 [ENTERPRISE]. Recommend tier based on volume analysis?',
+            'international': 'International shipping protocol activated. Customs + duty calculation modules ready for configuration.',
+            'default': 'Query received. This prototype demonstrates our AI interface. Full system capabilities deploying soon.'
+        };
+
+        function addHoloLine(text, type = 'ai-message') {
+            const line = document.createElement('div');
+            line.className = 'holo-line';
+            
+            if (type === 'user-message') {
+                line.innerHTML = `<span class="system-label">YOU:</span> <span class="${type}">${text}</span>`;
+            } else {
+                line.innerHTML = `<span class="system-label">AI:</span> <span class="${type}">${text}</span>`;
+            }
+            
+            const inputPanel = panelContent.querySelector('.input-panel');
+            panelContent.insertBefore(line, inputPanel);
+            
+            setTimeout(() => {
+                inputPanel.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }, 100);
+        }
+
+        function askQuestion(question) {
+            addHoloLine(question, 'user-message');
+            
+            let response = responses.default;
+            for (let key in responses) {
+                if (question.toLowerCase().includes(key)) {
+                    response = responses[key];
+                    break;
+                }
+            }
+            
+            setTimeout(() => {
+                addHoloLine(response);
+            }, 1000);
+            
+            userInput.value = '';
+        }
+
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && this.value.trim()) {
+                askQuestion(this.value);
+            }
+        });
+
+        document.addEventListener('click', function() {
+            userInput.focus();
+        });
+    </script>
+</body>
+</html>
