@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShipperHQ AI Configuration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0f;
+            color: #00f7ff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Aggressive scanlines */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 247, 255, 0.03) 2px,
+                    rgba(0, 247, 255, 0.03) 3px
+                );
+            pointer-events: none;
+            z-index: 100;
+            animation: scanlines 8s linear infinite;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(3px); }
+        }
+
+        /* Shipping data streams */
+        .data-stream {
+            position: absolute;
+            white-space: nowrap;
+            font-size: 11px;
+            opacity: 0.4;
+            pointer-events: none;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.05em;
+        }
+
+        .stream-1 {
+            top: 15%;
+            color: #00f7ff;
+            text-shadow: 0 0 8px #00f7ff;
+            animation: streamLeft 25s linear infinite;
+        }
+
+        .stream-2 {
+            top: 35%;
+            color: #ff007f;
+            text-shadow: 0 0 8px #ff007f;
+            animation: streamRight 30s linear infinite;
+        }
+
+        .stream-3 {
+            top: 55%;
+            color: #ffb000;
+            text-shadow: 0 0 8px #ffb000;
+            animation: streamLeft 35s linear infinite;
+            animation-delay: 3s;
+        }
+
+        .stream-4 {
+            top: 75%;
+            color: #00f7ff;
+            text-shadow: 0 0 8px #00f7ff;
+            animation: streamRight 28s linear infinite;
+            animation-delay: 5s;
+        }
+
+        .stream-5 {
+            top: 85%;
+            color: #00ff9f;
+            text-shadow: 0 0 8px #00ff9f;
+            animation: streamLeft 32s linear infinite;
+            animation-delay: 2s;
+        }
+
+        @keyframes streamLeft {
+            from { left: 100%; }
+            to { left: -100%; }
+        }
+
+        @keyframes streamRight {
+            from { left: -100%; }
+            to { left: 100%; }
+        }
+
+        /* Neon grid background */
+        .cyber-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 0, 127, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 247, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            transform: perspective(500px) rotateX(60deg);
+            transform-origin: center bottom;
+            opacity: 0.3;
+        }
+
+        /* Holographic circles */
+        .holo-circle {
+            position: absolute;
+            border: 2px solid;
+            border-radius: 50%;
+            opacity: 0.2;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .holo-circle:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            right: -100px;
+            border-color: #ff007f;
+            animation-delay: 0s;
+        }
+
+        .holo-circle:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            bottom: -50px;
+            left: -50px;
+            border-color: #00f7ff;
+            animation-delay: 1s;
+        }
+
+        .holo-circle:nth-child(3) {
+            width: 250px;
+            height: 250px;
+            top: 50%;
+            left: 10%;
+            border-color: #ffb000;
+            animation-delay: 2s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.2; }
+            50% { transform: scale(1.1); opacity: 0.4; }
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            z-index: 10;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 2rem;
+            letter-spacing: 0.4em;
+            color: #00f7ff;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-shadow: 
+                0 0 10px #00f7ff,
+                0 0 20px #00f7ff,
+                0 0 30px #00f7ff,
+                2px 2px 0 #ff007f,
+                -2px -2px 0 #ffb000;
+            animation: flicker 3s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            41%, 43% { opacity: 0.8; }
+            45%, 47% { opacity: 0.95; }
+        }
+
+        .tagline {
+            font-size: 0.95rem;
+            color: #ffb000;
+            font-style: normal;
+            letter-spacing: 0.2em;
+            text-shadow: 0 0 10px #ffb000;
+        }
+
+        .tagline::before {
+            content: '[ ';
+            color: #ff007f;
+        }
+
+        .tagline::after {
+            content: ' ]';
+            color: #ff007f;
+        }
+
+        .terminal-container {
+            background: rgba(10, 10, 15, 0.9);
+            border-radius: 0;
+            padding: 0;
+            box-shadow: 
+                0 0 40px rgba(0, 247, 255, 0.4),
+                0 0 80px rgba(255, 0, 127, 0.2),
+                inset 0 0 60px rgba(0, 247, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 2px solid #00f7ff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .terminal-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff007f, #00f7ff, #ffb000, #ff007f);
+            background-size: 400% 400%;
+            animation: borderGlow 3s ease infinite;
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(10px);
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-bottom: 2px solid #00f7ff;
+            box-shadow: 0 2px 20px rgba(0, 247, 255, 0.3);
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .terminal-button {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .terminal-button.close { 
+            background: #ff007f;
+            box-shadow: 0 0 15px #ff007f;
+        }
+        .terminal-button.minimize { 
+            background: #ffb000;
+            box-shadow: 0 0 15px #ffb000;
+        }
+        .terminal-button.maximize { 
+            background: #00f7ff;
+            box-shadow: 0 0 15px #00f7ff;
+        }
+
+        .terminal-title {
+            margin-left: auto;
+            font-size: 0.9rem;
+            color: #00f7ff;
+            text-shadow: 0 0 10px #00f7ff;
+            letter-spacing: 0.1em;
+        }
+
+        .terminal-screen {
+            background: #000000;
+            padding: 30px;
+            min-height: 400px;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* CRT curve effect */
+        .terminal-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 247, 255, 0.05) 2px,
+                    rgba(0, 247, 255, 0.05) 4px
+                );
+            pointer-events: none;
+        }
+
+        /* Chromatic aberration effect */
+        .terminal-screen::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at center, transparent 0%, rgba(0, 247, 255, 0.05) 100%);
+            pointer-events: none;
+        }
+
+        .terminal-line {
+            margin-bottom: 12px;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+            position: relative;
+            text-shadow: 
+                0 0 5px currentColor,
+                2px 0 2px rgba(255, 0, 127, 0.3),
+                -2px 0 2px rgba(255, 176, 0, 0.3);
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .prompt {
+            color: #00f7ff;
+            text-shadow: 0 0 10px #00f7ff;
+        }
+
+        .ai-response {
+            color: #ffb000;
+            text-shadow: 0 0 8px #ffb000;
+        }
+
+        .user-input {
+            color: #ff007f;
+            text-shadow: 0 0 8px #ff007f;
+        }
+
+        .input-line {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            position: relative;
+            z-index: 5;
+        }
+
+        #userInput {
+            background: transparent;
+            border: none;
+            color: #ff007f;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            outline: none;
+            flex: 1;
+            margin-left: 10px;
+            text-shadow: 0 0 8px #ff007f;
+        }
+
+        #userInput::placeholder {
+            color: rgba(255, 0, 127, 0.5);
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background: #ff007f;
+            animation: blink 0.8s infinite;
+            margin-left: 2px;
+            box-shadow: 0 0 10px #ff007f;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .suggestions {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .suggestion-btn {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #00f7ff;
+            color: #00f7ff;
+            padding: 10px 20px;
+            border-radius: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 0 5px #00f7ff;
+            box-shadow: 
+                0 0 10px rgba(0, 247, 255, 0.3),
+                inset 0 0 10px rgba(0, 247, 255, 0.1);
+        }
+
+        .suggestion-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 247, 255, 0.2);
+            transition: left 0.3s ease;
+        }
+
+        .suggestion-btn:hover {
+            border-color: #ff007f;
+            color: #ff007f;
+            text-shadow: 0 0 10px #ff007f;
+            box-shadow: 
+                0 0 20px rgba(255, 0, 127, 0.5),
+                inset 0 0 20px rgba(255, 0, 127, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .suggestion-btn:hover::before {
+            left: 100%;
+        }
+
+        .glow {
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        /* ASCII truck animation */
+        .ascii-truck {
+            position: absolute;
+            bottom: 10px;
+            left: -150px;
+            color: #00ff9f;
+            font-size: 10px;
+            line-height: 1;
+            white-space: pre;
+            opacity: 0.6;
+            text-shadow: 0 0 5px #00ff9f;
+            animation: driveTruck 30s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes driveTruck {
+            0% {
+                left: -150px;
+                transform: scaleX(1);
+            }
+            48% {
+                left: calc(100% + 50px);
+                transform: scaleX(1);
+            }
+            50% {
+                left: calc(100% + 50px);
+                transform: scaleX(-1);
+            }
+            98% {
+                left: -150px;
+                transform: scaleX(-1);
+            }
+            100% {
+                left: -150px;
+                transform: scaleX(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .holo-circle {
+                display: none;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .terminal-screen {
+                padding: 20px;
+                font-size: 0.85rem;
+            }
+
+            .suggestion-btn {
+                font-size: 0.75rem;
+                padding: 8px 16px;
+            }
+
+            .ascii-truck {
+                font-size: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Shipping data streams -->
+    <div class="data-stream stream-1">1Z999AA10123456784 • LAX→JFK • 37.7749°N,122.4194°W → 40.7128°N,74.0060°W • USPS9400110200881234567890 • SFO→ORD • IN_TRANSIT</div>
+    <div class="data-stream stream-2">DELIVERED • 9405510200882123456789 • USLAX→USNYC • 34.0522°N,118.2437°W → 40.7580°N,73.9855°W • FDX123456789012 • OUT_FOR_DELIVERY</div>
+    <div class="data-stream stream-3">UPS1Z9999999999999999 • DEN→MIA • 39.7392°N,104.9903°W → 25.7617°N,80.1918°W • CUSTOMS_CLEARED • 9261290100129999999999 • ATL→SEA</div>
+    <div class="data-stream stream-4">47.6062°N,122.3321°W → 41.8781°N,87.6298°W • 1Z8888888888888888 • PROCESSING • USSEA→USCHI • DHL9876543210123 • LAX→BOS</div>
+    <div class="data-stream stream-5">FEDEX123456789 • SAN→PHX • 32.7157°N,117.1611°W → 33.4484°N,112.0740°W • ARRIVED • 1Z7777777777777777 • DELIVERY_SCHEDULED</div>
+    
+    <div class="cyber-grid"></div>
+    <div class="holo-circle"></div>
+    <div class="holo-circle"></div>
+    <div class="holo-circle"></div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="logo">SHIPPERHQ</div>
+            <div class="tagline">AI-POWERED CONFIGURATION TERMINAL</div>
+        </div>
+
+        <div class="terminal-container">
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <div class="terminal-button close"></div>
+                    <div class="terminal-button minimize"></div>
+                    <div class="terminal-button maximize"></div>
+                </div>
+                <div class="terminal-title">SHIPPERHQ_AI_v4.2.1 // ACTIVE</div>
+            </div>
+
+            <div class="terminal-screen" id="terminalScreen">
+                <div class="terminal-line">
+                    <span class="prompt">root@shipperhq:~#</span> <span class="glow">INITIALIZING INTELLIGENCE INTERFACE...</span>
+                </div>
+                <div class="terminal-line" style="animation-delay: 0.5s;">
+                    <span class="ai-response">◢◤</span> CONNECTION ESTABLISHED
+                </div>
+                <div class="terminal-line" style="animation-delay: 1s;">
+                    <span class="ai-response">◢◤</span> AI assistant ready. What configuration task can I help you with?
+                </div>
+                
+                <div class="input-line">
+                    <span class="prompt">user@terminal:~#</span>
+                    <input type="text" id="userInput" placeholder="Enter command or select protocol below..." autofocus>
+                    <span class="cursor"></span>
+                </div>
+
+                <div class="suggestions">
+                    <button class="suggestion-btn" onclick="askQuestion('How do I set up rate shopping?')">[ RATE SHOPPING ]</button>
+                    <button class="suggestion-btn" onclick="askQuestion('What shipping carriers do you support?')">[ CARRIERS ]</button>
+                    <button class="suggestion-btn" onclick="askQuestion('Show me pricing tiers')">[ PRICING ]</button>
+                    <button class="suggestion-btn" onclick="askQuestion('I need help with international shipping')">[ INTERNATIONAL ]</button>
+                </div>
+
+                <!-- ASCII Truck Animation -->
+                <div class="ascii-truck">__________
+|________|___
+|_|___|_|o_o|
+'...'...'..'</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Terminal functionality
+        const terminalScreen = document.getElementById('terminalScreen');
+        const userInput = document.getElementById('userInput');
+
+        const responses = {
+            'rate shopping': '>>> ACCESSING DATABASE... Rate shopping protocol enables real-time carrier comparison across 50+ networks. Initializing setup sequence...',
+            'carriers': '>>> CARRIER MANIFEST: USPS | FedEx | UPS | DHL | 47 regional networks detected. Query specific carrier for detailed specs.',
+            'pricing': '>>> PRICING MATRIX: Tier 1: $50/mo [SMALL] | Tier 2: $150/mo [MEDIUM] | Tier 3: $350/mo [ENTERPRISE]. Recommend analysis based on shipment volume.',
+            'international': '>>> INTERNATIONAL PROTOCOL: Requires customs integration + duty calculation modules. Initiating configuration wizard...',
+            'default': '>>> QUERY RECEIVED. This is a prototype interface. Full neural network capabilities coming online soon. Select another protocol to explore.'
+        };
+
+        function addTerminalLine(text, type = 'ai-response') {
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            line.innerHTML = `<span class="${type}">◢◤</span> ${text}`;
+            
+            const inputLine = terminalScreen.querySelector('.input-line');
+            terminalScreen.insertBefore(line, inputLine);
+            
+            setTimeout(() => {
+                inputLine.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }, 100);
+        }
+
+        function askQuestion(question) {
+            addTerminalLine(question, 'user-input');
+            
+            let response = responses.default;
+            for (let key in responses) {
+                if (question.toLowerCase().includes(key)) {
+                    response = responses[key];
+                    break;
+                }
+            }
+            
+            setTimeout(() => {
+                addTerminalLine(response);
+            }, 800);
+            
+            userInput.value = '';
+        }
+
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && this.value.trim()) {
+                askQuestion(this.value);
+            }
+        });
+
+        document.addEventListener('click', function() {
+            userInput.focus();
+        });
+    </script>
+</body>
+</html>
