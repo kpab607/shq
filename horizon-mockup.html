@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShipperHQ — Configure the Future</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:wght@700;900&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue:    #3a6ff5;
+    --blue-mid: #5a8fff;
+    --purple:  #7a55d0;
+    --coral:   #c95c5c;
+    --amber:   #d9832a;
+    --orange:  #e09040;
+    --ink:     #1a1218;
+    --ink2:    #2a1f28;
+    --paper:   #f5f0e8;
+    --paper2:  #ede5d4;
+    --rule:    rgba(26,18,24,0.18);
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--ink);
+    font-family: 'Space Grotesk', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px;
+    background: transparent;
+  }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.12em;
+    color: var(--paper);
+    opacity: 0.92;
+  }
+  .logo span { color: var(--amber); }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--paper);
+    opacity: 0.6;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .nav-links a:hover { opacity: 1; }
+  .nav-cta {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--amber);
+    border: none;
+    padding: 9px 22px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .nav-cta:hover { background: var(--orange); }
+
+  /* ── HERO WRAPPER ── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── BACKGROUND ── */
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 15% 60%, rgba(217,131,42,0.11) 0%, transparent 45%),
+                radial-gradient(ellipse at 40% 30%, rgba(201,92,92,0.07) 0%, transparent 40%),
+                radial-gradient(ellipse at 75% 45%, rgba(58,111,245,0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 95% 80%, rgba(90,143,255,0.07) 0%, transparent 40%);
+    z-index: 0;
+  }
+
+  /* Blueprint grid — fades out toward the right */
+  .hero::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(217,131,42,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(217,131,42,0.07) 1px, transparent 1px);
+    background-size: 40px 40px;
+    -webkit-mask-image: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 42%, transparent 62%);
+    mask-image: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 42%, transparent 62%);
+    z-index: 0;
+  }
+
+  /* Circuit trace overlay — fades in from center on AI side */
+  .circuit-layer {
+    position: absolute; inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent 48%, rgba(0,0,0,0.5) 62%, rgba(0,0,0,0.85) 100%);
+    mask-image: linear-gradient(90deg, transparent 48%, rgba(0,0,0,0.5) 62%, rgba(0,0,0,0.85) 100%);
+  }
+
+  /* ── LEFT PANEL — CALCULATOR ── */
+  .panel-calc {
+    position: relative;
+    z-index: 2;
+    padding: 120px 48px 60px 64px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* Technical diagram background for left panel */
+  .panel-calc::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    z-index: -1;
+  }
+
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .eyebrow::before {
+    content: '';
+    display: block;
+    width: 24px; height: 1px;
+    background: var(--amber);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 4.5vw, 4.2rem);
+    font-weight: 900;
+    line-height: 1.0;
+    color: var(--paper);
+    margin-bottom: 8px;
+    letter-spacing: -0.01em;
+  }
+  h1 em {
+    font-style: italic;
+    background: linear-gradient(90deg, var(--coral), var(--amber));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--paper);
+    opacity: 0.45;
+    letter-spacing: 0.04em;
+    margin-bottom: 44px;
+    line-height: 1.7;
+    max-width: 360px;
+  }
+
+  /* ── INSTRUMENT PANEL ── */
+  .instrument-panel {
+    background: var(--ink2);
+    border: 1px solid rgba(245,240,232,0.1);
+    padding: 28px 28px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Corner registration marks */
+  .instrument-panel::before,
+  .instrument-panel::after {
+    content: '';
+    position: absolute;
+    width: 12px; height: 12px;
+    border-color: var(--amber);
+    border-style: solid;
+    opacity: 0.4;
+  }
+  .instrument-panel::before {
+    top: 8px; left: 8px;
+    border-width: 1px 0 0 1px;
+  }
+  .instrument-panel::after {
+    bottom: 8px; right: 8px;
+    border-width: 0 1px 1px 0;
+  }
+
+  .panel-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--amber);
+    opacity: 0.7;
+    margin-bottom: 22px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(245,240,232,0.06);
+  }
+
+  /* Rate readout */
+  .rate-readout {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 28px;
+    padding: 16px 20px;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(217,131,42,0.2);
+    position: relative;
+  }
+  .rate-readout::before {
+    content: 'ESTIMATED RATE';
+    position: absolute;
+    top: -10px; left: 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.5rem;
+    letter-spacing: 0.2em;
+    color: var(--amber);
+    background: var(--ink2);
+    padding: 0 6px;
+    line-height: 1;
+  }
+  .rate-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--amber);
+    letter-spacing: 0.04em;
+    text-shadow: 0 0 20px rgba(217,131,42,0.4);
+    transition: all 0.3s ease;
+  }
+  .rate-unit {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--paper);
+    opacity: 0.4;
+    letter-spacing: 0.1em;
+  }
+  .rate-carrier {
+    margin-left: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--coral);
+    letter-spacing: 0.1em;
+    opacity: 0.8;
+  }
+
+  /* Sliders */
+  .controls-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 28px;
+    margin-bottom: 20px;
+  }
+
+  .control-group label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--paper);
+    opacity: 0.5;
+    margin-bottom: 8px;
+  }
+  .control-group label span {
+    color: var(--amber);
+    opacity: 1;
+    font-size: 0.65rem;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--amber) var(--pct, 40%), rgba(245,240,232,0.1) var(--pct, 40%));
+    outline: none;
+    cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    background: var(--paper);
+    border: 2px solid var(--amber);
+    border-radius: 0;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover {
+    background: var(--amber);
+  }
+
+  /* Carrier toggles */
+  .carrier-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .carrier-btn {
+    flex: 1;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 7px 4px;
+    background: transparent;
+    border: 1px solid rgba(245,240,232,0.12);
+    color: var(--paper);
+    opacity: 0.45;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .carrier-btn.active {
+    border-color: var(--coral);
+    color: var(--coral);
+    opacity: 1;
+    background: rgba(201,92,92,0.08);
+  }
+
+  /* Special toggles */
+  .toggles-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .toggle-chip {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 10px;
+    background: transparent;
+    border: 1px solid rgba(245,240,232,0.1);
+    color: var(--paper);
+    opacity: 0.35;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .toggle-chip.active {
+    border-color: var(--purple);
+    color: #c4a8e0;
+    opacity: 1;
+    background: rgba(139,107,181,0.12);
+  }
+
+  /* ── RIGHT PANEL — AI ── */
+  .panel-ai {
+    position: relative;
+    z-index: 2;
+    padding: 120px 64px 60px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .panel-ai::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: transparent;
+    z-index: -1;
+  }
+
+  /* Technical annotation lines */
+  .annotation {
+    position: absolute;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    color: var(--blue);
+    opacity: 0.35;
+    text-transform: uppercase;
+  }
+  .annotation-tl { top: 88px; right: 64px; }
+  .annotation-tr { top: 88px; right: 64px; display: flex; align-items: center; gap: 8px; }
+  .annotation-tr::before { content: ''; display: block; width: 20px; height: 1px; background: var(--blue); opacity: 0.5; }
+
+  .ai-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #5a8fff;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .ai-eyebrow::before {
+    content: '';
+    display: block;
+    width: 24px; height: 1px;
+    background: #5a8fff;
+  }
+
+  .ai-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 2.4vw, 2.2rem);
+    font-weight: 700;
+    color: var(--paper);
+    line-height: 1.15;
+    margin-bottom: 8px;
+    opacity: 0.9;
+  }
+
+  .ai-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--paper);
+    opacity: 0.38;
+    letter-spacing: 0.04em;
+    line-height: 1.7;
+    margin-bottom: 28px;
+    max-width: 320px;
+  }
+
+  /* Chat window */
+  .chat-window {
+    background: rgba(10,8,20,0.75);
+    border: 1px solid rgba(58,111,245,0.3);
+    padding: 20px;
+    position: relative;
+    backdrop-filter: blur(8px);
+  }
+  .chat-window::before {
+    content: ''; position: absolute;
+    top: 8px; left: 8px;
+    width: 10px; height: 10px;
+    border-top: 1px solid rgba(90,143,255,0.7);
+    border-left: 1px solid rgba(90,143,255,0.7);
+  }
+  .chat-window::after {
+    content: ''; position: absolute;
+    bottom: 8px; right: 8px;
+    width: 10px; height: 10px;
+    border-bottom: 1px solid rgba(90,143,255,0.7);
+    border-right: 1px solid rgba(90,143,255,0.7);
+  }
+
+  .chat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--blue);
+    opacity: 0.6;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(245,240,232,0.05);
+  }
+
+  .messages {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+    min-height: 180px;
+  }
+
+  .msg {
+    max-width: 88%;
+    padding: 10px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+    animation: fadeUp 0.4s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg-ai {
+    background: rgba(58,111,245,0.14);
+    border: 1px solid rgba(58,111,245,0.35);
+    color: var(--paper);
+    opacity: 0.9;
+    border-radius: 0 8px 8px 8px;
+    align-self: flex-start;
+  }
+  .msg-user {
+    background: rgba(217,131,42,0.1);
+    border: 1px solid rgba(217,131,42,0.2);
+    color: var(--amber);
+    border-radius: 8px 0 8px 8px;
+    align-self: flex-end;
+    text-align: right;
+  }
+
+  .typing-indicator {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    padding: 10px 14px;
+    background: rgba(91,125,216,0.08);
+    border: 1px solid rgba(91,125,216,0.15);
+    border-radius: 0 8px 8px 8px;
+    width: fit-content;
+    align-self: flex-start;
+  }
+  .typing-indicator span {
+    width: 5px; height: 5px;
+    background: var(--blue);
+    border-radius: 50%;
+    opacity: 0.4;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes pulse {
+    0%, 60%, 100% { opacity: 0.2; transform: scale(1); }
+    30% { opacity: 1; transform: scale(1.3); }
+  }
+
+  .chat-input-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .chat-input {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(245,240,232,0.1);
+    color: var(--paper);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .chat-input::placeholder { color: var(--paper); opacity: 0.2; }
+  .chat-input:focus { border-color: rgba(91,125,216,0.4); }
+
+  .chat-send {
+    background: #3a6ff5;
+    border: none;
+    color: var(--paper);
+    font-size: 1.2rem;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0.95;
+    border-radius: 6px;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
+    line-height: 1;
+  }
+  .chat-send:hover { background: #5a8fff; opacity: 1; box-shadow: 0 3px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2); }
+  .chat-send:active { box-shadow: 0 1px 0 rgba(0,0,0,0.3); transform: translateY(1px); }
+
+  /* Preset pills */
+  .presets {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+  .preset-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    background: transparent;
+    border: 1px solid rgba(58,111,245,0.35);
+    color: #5a8fff;
+    opacity: 0.75;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .preset-btn:hover { opacity: 1; background: rgba(58,111,245,0.12); border-color: rgba(90,143,255,0.6); }
+
+  /* ── DIVIDER — now just a subtle breath of light ── */
+  .center-rule {
+    position: absolute;
+    left: 50%;
+    top: 80px;
+    bottom: 40px;
+    width: 1px;
+    background: linear-gradient(to bottom,
+      transparent 0%,
+      rgba(245,240,232,0.03) 20%,
+      rgba(245,240,232,0.03) 80%,
+      transparent 100%);
+    z-index: 3;
+    transform: translateX(-50%);
+  }
+  .center-rule::before { display: none; }
+
+  /* ── SVG TECHNICAL DECORATIONS ── */
+  .tech-svg {
+    position: absolute;
+    opacity: 0.07;
+    pointer-events: none;
+  }
+  .tech-svg-bl { bottom: 40px; left: 40px; width: 180px; }
+  .tech-svg-tr { top: 80px; right: 40px; width: 140px; }
+
+  /* ── BOTTOM BAR ── */
+  .bottom-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 64px;
+    border-top: 1px solid rgba(245,240,232,0.06);
+    z-index: 3;
+  }
+  .bottom-bar-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--paper);
+    opacity: 0.25;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .bottom-bar-item::before {
+    content: '';
+    width: 5px; height: 5px;
+    background: var(--amber);
+    opacity: 0.6;
+  }
+  .bottom-bar-item.pulse-dot::before {
+    animation: dotpulse 2s ease-in-out infinite;
+  }
+  @keyframes dotpulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Shipper<span>HQ</span></div>
+  <div class="nav-links">
+    <a href="#">Who We Are</a>
+    <a href="#">How We Help</a>
+    <a href="#">Integrations</a>
+    <a href="#">Pricing</a>
+    <a href="#">Resources</a>
+  </div>
+  <button class="nav-cta">Start Free Trial</button>
+</nav>
+
+<section class="hero">
+
+  <!-- Circuit trace layer (AI side texture) -->
+  <div class="circuit-layer">
+    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;">
+      <defs>
+        <pattern id="circuit" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
+          <!-- Horizontal traces -->
+          <line x1="0" y1="20" x2="80" y2="20" stroke="#3a6ff5" stroke-width="0.6" opacity="0.4"/>
+          <line x1="40" y1="20" x2="40" y2="60" stroke="#3a6ff5" stroke-width="0.6" opacity="0.4"/>
+          <line x1="40" y1="60" x2="100" y2="60" stroke="#3a6ff5" stroke-width="0.6" opacity="0.4"/>
+          <line x1="100" y1="60" x2="100" y2="100" stroke="#3a6ff5" stroke-width="0.6" opacity="0.3"/>
+          <line x1="60" y1="100" x2="120" y2="100" stroke="#3a6ff5" stroke-width="0.6" opacity="0.3"/>
+          <!-- Short stub traces -->
+          <line x1="80" y1="20" x2="80" y2="40" stroke="#3a6ff5" stroke-width="0.6" opacity="0.25"/>
+          <line x1="60" y1="40" x2="80" y2="40" stroke="#3a6ff5" stroke-width="0.6" opacity="0.25"/>
+          <!-- Node dots -->
+          <circle cx="40" cy="20" r="2" fill="#3a6ff5" opacity="0.5"/>
+          <circle cx="40" cy="60" r="2" fill="#3a6ff5" opacity="0.5"/>
+          <circle cx="100" cy="60" r="2" fill="#5a8fff" opacity="0.45"/>
+          <circle cx="100" cy="100" r="1.5" fill="#3a6ff5" opacity="0.35"/>
+          <circle cx="80" cy="40" r="1.5" fill="#3a6ff5" opacity="0.3"/>
+          <!-- Diagonal trace -->
+          <line x1="0" y1="80" x2="20" y2="100" stroke="#5a8fff" stroke-width="0.4" opacity="0.2"/>
+          <!-- Tiny pad squares -->
+          <rect x="38" y="18" width="4" height="4" fill="none" stroke="#5a8fff" stroke-width="0.5" opacity="0.4"/>
+          <rect x="98" y="58" width="4" height="4" fill="none" stroke="#5a8fff" stroke-width="0.5" opacity="0.35"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#circuit)"/>
+    </svg>
+  </div>
+
+  <!-- Technical SVG decorations -->
+  <svg class="tech-svg tech-svg-bl" viewBox="0 0 180 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="60" r="55" stroke="#f5f0e8" stroke-width="0.5"/>
+    <circle cx="60" cy="60" r="38" stroke="#f5f0e8" stroke-width="0.5" stroke-dasharray="4 3"/>
+    <circle cx="60" cy="60" r="20" stroke="#f5f0e8" stroke-width="0.5"/>
+    <line x1="0" y1="60" x2="180" y2="60" stroke="#f5f0e8" stroke-width="0.5"/>
+    <line x1="60" y1="0" x2="60" y2="120" stroke="#f5f0e8" stroke-width="0.5"/>
+    <line x1="20" y1="20" x2="100" y2="100" stroke="#f5f0e8" stroke-width="0.3" stroke-dasharray="2 4"/>
+    <text x="120" y="55" fill="#f5f0e8" font-family="monospace" font-size="6" opacity="0.8">REF.A / RATE-CALC</text>
+    <text x="120" y="64" fill="#f5f0e8" font-family="monospace" font-size="5" opacity="0.6">DWG NO. SHQ-001</text>
+  </svg>
+
+  <svg class="tech-svg tech-svg-tr" viewBox="0 0 140 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="10" width="120" height="80" stroke="#f5f0e8" stroke-width="0.5"/>
+    <rect x="20" y="20" width="100" height="60" stroke="#f5f0e8" stroke-width="0.3" stroke-dasharray="3 3"/>
+    <line x1="10" y1="50" x2="130" y2="50" stroke="#f5f0e8" stroke-width="0.3"/>
+    <line x1="70" y1="10" x2="70" y2="90" stroke="#f5f0e8" stroke-width="0.3"/>
+    <text x="14" y="8" fill="#f5f0e8" font-family="monospace" font-size="5" opacity="0.8">AI-CONFIG / SHQ-002</text>
+    <circle cx="70" cy="50" r="15" stroke="#f5f0e8" stroke-width="0.4"/>
+    <circle cx="70" cy="50" r="4" stroke="#f5f0e8" stroke-width="0.4"/>
+  </svg>
+
+  <div class="center-rule"></div>
+
+  <!-- LEFT: Calculator -->
+  <div class="panel-calc">
+    <div class="eyebrow">Rate Configuration Engine</div>
+    <h1>Ship <em>smarter.</em><br>Ship exact.</h1>
+    <p class="subtitle">Configure every variable. Control every rate.<br>See it live — before your customers do.</p>
+
+    <div class="instrument-panel">
+      <div class="panel-label">▸ Model SHQ-AI-DEMO / Your mileage may vary ;)</div>
+
+      <div class="rate-readout">
+        <div class="rate-value" id="rateDisplay">$14.82</div>
+        <div class="rate-unit">USD / shipment</div>
+        <div class="rate-carrier" id="carrierDisplay">FedEx Ground</div>
+      </div>
+
+      <div class="controls-grid">
+        <div class="control-group">
+          <label>Weight <span id="weightVal">12 lbs</span></label>
+          <input type="range" min="1" max="50" value="12" id="weightSlider">
+        </div>
+        <div class="control-group">
+          <label>Distance <span id="distVal">840 mi</span></label>
+          <input type="range" min="50" max="3000" value="840" id="distSlider">
+        </div>
+        <div class="control-group">
+          <label>Dimensions <span id="dimVal">Med</span></label>
+          <input type="range" min="1" max="3" value="2" id="dimSlider">
+        </div>
+        <div class="control-group">
+          <label>Speed <span id="speedVal">Ground</span></label>
+          <input type="range" min="1" max="3" value="1" id="speedSlider">
+        </div>
+      </div>
+
+      <div class="carrier-row">
+        <button class="carrier-btn" data-m="1.0" onclick="selectCarrier(this,'USPS','1.0')">USPS</button>
+        <button class="carrier-btn active" data-m="1.15" onclick="selectCarrier(this,'FedEx','1.15')">FedEx</button>
+        <button class="carrier-btn" data-m="1.12" onclick="selectCarrier(this,'UPS','1.12')">UPS</button>
+        <button class="carrier-btn" data-m="1.22" onclick="selectCarrier(this,'DHL','1.22')">DHL</button>
+      </div>
+
+      <div class="toggles-row">
+        <button class="toggle-chip" onclick="toggleChip(this)">Fragile</button>
+        <button class="toggle-chip" onclick="toggleChip(this)">Hazmat</button>
+        <button class="toggle-chip" onclick="toggleChip(this)">Frozen</button>
+        <button class="toggle-chip" onclick="toggleChip(this)">Oversized</button>
+        <button class="toggle-chip" onclick="toggleChip(this)">Perishable</button>
+        <button class="toggle-chip" onclick="toggleChip(this)">Live Cargo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: AI -->
+  <div class="panel-ai">
+    <div class="annotation annotation-tr">Configuration Intelligence</div>
+    <div class="ai-eyebrow">AI Configuration Assistant</div>
+    <h2 class="ai-heading">Every rule,<br>without the guesswork.</h2>
+    <p class="ai-sub">Describe your shipping goals in plain language. Our AI configures the logic — you approve and deploy.</p>
+
+    <div class="chat-window">
+      <div class="chat-label">▸ AI Config — Session Active</div>
+      <div class="messages" id="messages">
+        <div class="msg msg-ai">What's your current shipping challenge? I can help configure rules for carriers, zones, weight breaks, special handling, and more! :)</div>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" type="text" placeholder="What's your goal?" onkeydown="if(event.key==='Enter') sendMsg()">
+        <button class="chat-send" onclick="sendMsg()">&#9166;</button>
+      </div>
+      <div class="presets">
+        <button class="preset-btn" onclick="usePreset('I need free shipping over $75 but only for domestic orders')">Free shipping rules</button>
+        <button class="preset-btn" onclick="usePreset('Set up dimensional weight pricing for large boxes')">Dimensional weight</button>
+        <button class="preset-btn" onclick="usePreset('Configure multi-carrier rate shopping at checkout')">Rate shopping</button>
+        <button class="preset-btn" onclick="usePreset('I have special handling needs for live cargo and perishables')">Special handling</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="bottom-bar">
+    <div class="bottom-bar-item pulse-dot">Live rate engine active</div>
+    <div class="bottom-bar-item">5,000+ merchants configured</div>
+    <div class="bottom-bar-item">Shopify · Magento · BigCommerce · WooCommerce</div>
+  </div>
+
+</section>
+
+<script>
+  // ── CALCULATOR LOGIC ──
+  let carrierMult = 1.15;
+  let carrierName = 'FedEx Ground';
+  let extras = 0;
+
+  const dimLabels = ['Sm', 'Med', 'Lg'];
+  const speedLabels = ['Ground', '2-Day', 'Overnight'];
+  const speedMults = [1.0, 1.6, 2.4];
+
+  function calcRate() {
+    const w = +document.getElementById('weightSlider').value;
+    const d = +document.getElementById('distSlider').value;
+    const dim = +document.getElementById('dimSlider').value;
+    const spd = +document.getElementById('speedSlider').value;
+    const base = (w * 0.18 + d * 0.003 + dim * 0.8) * carrierMult * speedMults[spd-1] + extras;
+    document.getElementById('rateDisplay').textContent = '$' + Math.max(base, 4.5).toFixed(2);
+    document.getElementById('carrierDisplay').textContent = carrierName + ' ' + speedLabels[spd-1];
+  }
+
+  function updateSlider(el) {
+    const pct = ((el.value - el.min) / (el.max - el.min) * 100) + '%';
+    el.style.setProperty('--pct', pct);
+  }
+
+  document.getElementById('weightSlider').addEventListener('input', function() {
+    document.getElementById('weightVal').textContent = this.value + ' lbs';
+    updateSlider(this); calcRate();
+  });
+  document.getElementById('distSlider').addEventListener('input', function() {
+    document.getElementById('distVal').textContent = (+this.value).toLocaleString() + ' mi';
+    updateSlider(this); calcRate();
+  });
+  document.getElementById('dimSlider').addEventListener('input', function() {
+    document.getElementById('dimVal').textContent = dimLabels[this.value-1];
+    updateSlider(this); calcRate();
+  });
+  document.getElementById('speedSlider').addEventListener('input', function() {
+    document.getElementById('speedVal').textContent = speedLabels[this.value-1];
+    updateSlider(this); calcRate();
+  });
+
+  // init slider tracks
+  document.querySelectorAll('input[type=range]').forEach(updateSlider);
+
+  function selectCarrier(btn, name, mult) {
+    document.querySelectorAll('.carrier-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    carrierName = name;
+    carrierMult = parseFloat(mult);
+    calcRate();
+  }
+
+  function toggleChip(btn) {
+    btn.classList.toggle('active');
+    calcRate();
+  }
+
+  // ── AI CHAT LOGIC ──
+  const aiResponses = {
+    'free shipping': "Got it. I'll set a rule: Free shipping activates when cart subtotal ≥ $75.00, limited to domestic zones (US48). All other orders route to standard rate table. Want to add a weight cap?",
+    'dimensional': "Configuring DIM weight pricing. Default DIM divisor: 139 (standard domestic). I'll apply this to packages where L×W×H ÷ 139 exceeds actual weight. Which carriers should this apply to?",
+    'rate shopping': "Setting up live rate shopping at checkout. I'll pull real-time quotes from your active carriers and display the lowest 3 options. Should I filter out carriers above a rate threshold?",
+    'special handling': "Understood. For live cargo and perishables I'll configure carrier eligibility rules — not all carriers accept these shipment types. I'll also flag transit time limits and temperature control options. Which carriers are you currently working with?",
+    'default': "Understood. Let me map that to a configuration rule. Can you tell me which carriers you're currently working with, and whether this applies to all zones or specific regions?"
+  };
+
+  function sendMsg() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    addMsg(text, 'user');
+    input.value = '';
+    showTyping();
+    setTimeout(() => {
+      removeTyping();
+      const key = Object.keys(aiResponses).find(k => text.toLowerCase().includes(k)) || 'default';
+      addMsg(aiResponses[key], 'ai');
+    }, 1100);
+  }
+
+  function usePreset(text) {
+    document.getElementById('chatInput').value = text;
+    sendMsg();
+  }
+
+  function addMsg(text, type) {
+    const msgs = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = 'msg msg-' + type;
+    div.textContent = text;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function showTyping() {
+    const msgs = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = 'typing-indicator';
+    div.id = 'typing';
+    div.innerHTML = '<span></span><span></span><span></span>';
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typing');
+    if (t) t.remove();
+  }
+</script>
+</body>
+</html>
