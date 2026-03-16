@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What is an Agent?</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue: #6B7FD4;
+    --purple: #9B6DB5;
+    --coral: #D4605A;
+    --orange: #E8873A;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: linear-gradient(135deg, #6B7FD4 0%, #9B6DB5 40%, #D4605A 70%, #E8873A 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .stage {
+    position: relative;
+    z-index: 1;
+    width: 900px;
+    max-width: 95vw;
+    height: 520px;
+  }
+
+  .scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 48px;
+    text-align: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.65s ease;
+  }
+  .scene.active { opacity: 1; pointer-events: all; }
+
+  .scene > * {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: none;
+  }
+  .scene.active > *:nth-child(1) { animation: fadeUp 0.6s 0.1s forwards; }
+  .scene.active > *:nth-child(2) { animation: fadeUp 0.6s 0.25s forwards; }
+  .scene.active > *:nth-child(3) { animation: fadeUp 0.6s 0.4s forwards; }
+  .scene.active > *:nth-child(4) { animation: fadeUp 0.6s 0.55s forwards; }
+  .scene.active > *:nth-child(5) { animation: fadeUp 0.6s 0.7s forwards; }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── TYPE ── */
+  .eyebrow {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(44px, 7.5vw, 80px);
+    font-weight: 800;
+    color: white;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+  }
+
+  h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(26px, 4vw, 42px);
+    font-weight: 700;
+    color: white;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 18px;
+  }
+
+  h2 em {
+    font-style: normal;
+    color: rgba(255,255,255,0.45);
+  }
+
+  .body {
+    font-size: clamp(14px, 1.9vw, 18px);
+    font-weight: 300;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.65;
+    max-width: 580px;
+  }
+
+  strong { font-weight: 500; color: white; }
+
+  /* ── SCENE 1: Hook ── */
+  .hook-split {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+    max-width: 600px;
+    width: 100%;
+    margin-bottom: 28px;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1.5px solid rgba(255,255,255,0.2);
+  }
+  .hook-col {
+    flex: 1;
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.08);
+  }
+  .hook-col + .hook-col {
+    border-left: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.15);
+  }
+  .hook-col .hook-icon { font-size: 28px; }
+  .hook-col .hook-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: white;
+  }
+  .hook-col .hook-desc {
+    font-size: 12px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  /* ── SCENE 2: Sequential contrast ── */
+  .seq-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 620px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .seq-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 14px;
+    padding: 14px 18px;
+    text-align: left;
+  }
+  .seq-row.bright {
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.4);
+  }
+  .seq-row .seq-tag {
+    font-family: 'Outfit', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    white-space: nowrap;
+    padding-top: 2px;
+    min-width: 46px;
+  }
+  .seq-row.bright .seq-tag { color: rgba(255,255,255,0.85); }
+  .seq-steps {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+    align-items: center;
+    overflow: hidden;
+  }
+  .seq-step {
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+    background: rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 5px 8px;
+    white-space: nowrap;
+  }
+  .seq-row.bright .seq-step {
+    background: rgba(255,255,255,0.18);
+  }
+  .seq-arrow {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    align-self: center;
+  }
+  .seq-step.done {
+    background: rgba(255,255,255,0.25);
+    color: white;
+  }
+
+  /* ── SCENE 3: Action loop ── */
+  .loop-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    max-width: 520px;
+    width: 100%;
+    margin-bottom: 22px;
+    position: relative;
+  }
+  .loop-cell {
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.18);
+    border-radius: 14px;
+    padding: 18px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .loop-cell .loop-num {
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.35);
+  }
+  .loop-cell .loop-icon { font-size: 22px; }
+  .loop-cell .loop-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    line-height: 1.2;
+  }
+  .loop-cell .loop-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.35;
+  }
+  .loop-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  /* ── SCENE 4: Full walkthrough ── */
+  .walkthrough {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 580px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .wt-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .wt-step:last-child { border-bottom: none; }
+  .wt-num {
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.35);
+    min-width: 20px;
+    padding-top: 3px;
+  }
+  .wt-icon {
+    font-size: 16px;
+    min-width: 22px;
+    text-align: center;
+  }
+  .wt-content { text-align: left; }
+  .wt-action {
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 2px;
+  }
+  .wt-detail {
+    font-size: 12px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.4;
+  }
+
+  /* ── SCENE 5: Trilogy ── */
+  .teaser-box {
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 28px 40px;
+    max-width: 560px;
+    margin-bottom: 22px;
+  }
+  .teaser-box p {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(16px, 2.5vw, 23px);
+    font-weight: 700;
+    color: white;
+    line-height: 1.5;
+  }
+  .teaser-box p .dim { color: rgba(255,255,255,0.45); font-weight: 400; }
+  .teaser-box p .lit { color: white; }
+
+  /* ── NAV ── */
+  .dots {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 100;
+  }
+  .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .dot.active { background: white; transform: scale(1.35); }
+
+  .nav-btn {
+    position: fixed;
+    bottom: 18px;
+    background: rgba(255,255,255,0.12);
+    border: 1.5px solid rgba(255,255,255,0.28);
+    color: white;
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 22px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: background 0.2s;
+    z-index: 100;
+  }
+  .nav-btn:hover { background: rgba(255,255,255,0.22); }
+  #btn-prev { left: 32px; }
+  #btn-next { right: 32px; }
+
+  .hud {
+    position: fixed;
+    top: 24px;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 32px;
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+  }
+  .counter {
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.35);
+  }
+
+  .progress-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    z-index: 100;
+  }
+  .progress-fill {
+    height: 100%;
+    background: rgba(255,255,255,0.6);
+    transition: width 0.5s ease;
+  }
+</style>
+</head>
+<body>
+
+<div class="hud">
+  <div class="logo">ShipperHQ</div>
+  <div class="counter" id="counter">1 / 5</div>
+</div>
+
+<div class="stage">
+
+  <!-- SCENE 1: Hook -->
+  <div class="scene active" id="scene-1">
+    <h1>The LLM knows<br>what to do.<br>The Agent does it.</h1>
+    <div class="hook-split">
+      <div class="hook-col">
+        <div class="hook-icon">🧠</div>
+        <div class="hook-label">LLM</div>
+        <div class="hook-desc">Reads, reasons, responds.<br>Brilliant — but it stops there.</div>
+      </div>
+      <div class="hook-col">
+        <div class="hook-icon">⚡</div>
+        <div class="hook-label">Agent</div>
+        <div class="hook-desc">Takes the answer and acts on it.<br>Checks systems. Does the work.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 2: Sequential contrast -->
+  <div class="scene" id="scene-2">
+    <h2>Same question.<br><em>Very different outcomes.</em></h2>
+    <div class="seq-wrap">
+      <div class="seq-row">
+        <div class="seq-tag">LLM</div>
+        <div class="seq-steps">
+          <div class="seq-step">📩 Reads question</div>
+          <div class="seq-arrow">→</div>
+          <div class="seq-step">✍️ Drafts reply</div>
+          <div class="seq-arrow">→</div>
+          <div class="seq-step">🛑 Stops</div>
+        </div>
+      </div>
+      <div class="seq-row bright">
+        <div class="seq-tag">Agent</div>
+        <div class="seq-steps">
+          <div class="seq-step">📩 Reads question</div>
+          <div class="seq-arrow">→</div>
+          <div class="seq-step">🔍 Checks order system</div>
+          <div class="seq-arrow">→</div>
+          <div class="seq-step">📋 Finds the delay</div>
+          <div class="seq-arrow">→</div>
+          <div class="seq-step done">✅ Sends real answer</div>
+        </div>
+      </div>
+    </div>
+    <p class="body">An LLM gives you a <strong>smart guess</strong>. An Agent gives you the <strong>actual answer</strong> — because it went and got it.</p>
+  </div>
+
+  <!-- SCENE 3: Action loop -->
+  <div class="scene" id="scene-3">
+    <h2>Agents work<br><em>in a loop.</em></h2>
+    <div class="loop-grid">
+      <div class="loop-cell">
+        <div class="loop-num">01</div>
+        <div class="loop-icon">📥</div>
+        <div class="loop-label">Receive task</div>
+        <div class="loop-sub">A question, a trigger,<br>or a goal to achieve</div>
+      </div>
+      <div class="loop-cell">
+        <div class="loop-num">02</div>
+        <div class="loop-icon">🔍</div>
+        <div class="loop-label">Gather info</div>
+        <div class="loop-sub">Query systems, read data,<br>check what's true right now</div>
+      </div>
+      <div class="loop-cell">
+        <div class="loop-num">03</div>
+        <div class="loop-icon">⚙️</div>
+        <div class="loop-label">Take action</div>
+        <div class="loop-sub">Send a message, update a record,<br>trigger a next step</div>
+      </div>
+      <div class="loop-cell">
+        <div class="loop-num">04</div>
+        <div class="loop-icon">✅</div>
+        <div class="loop-label">Check result</div>
+        <div class="loop-sub">Did it work? Loop again<br>or report back</div>
+      </div>
+      <div class="loop-center">🔄</div>
+    </div>
+    <p class="body">That loop — receive, gather, act, check — is what makes an Agent different from a chatbot.</p>
+  </div>
+
+  <!-- SCENE 4: Full walkthrough -->
+  <div class="scene" id="scene-4">
+    <h2>"Where's my order?"<br><em>Here's what the Agent does.</em></h2>
+    <div class="walkthrough">
+      <div class="wt-step">
+        <div class="wt-num">1</div>
+        <div class="wt-icon">📩</div>
+        <div class="wt-content">
+          <div class="wt-action">Reads the customer email</div>
+          <div class="wt-detail">Understands the intent: order status inquiry</div>
+        </div>
+      </div>
+      <div class="wt-step">
+        <div class="wt-num">2</div>
+        <div class="wt-icon">🔍</div>
+        <div class="wt-content">
+          <div class="wt-action">Queries the order system</div>
+          <div class="wt-detail">Pulls real-time status, tracking ID, and carrier data</div>
+        </div>
+      </div>
+      <div class="wt-step">
+        <div class="wt-num">3</div>
+        <div class="wt-icon">⚠️</div>
+        <div class="wt-content">
+          <div class="wt-action">Finds a delay note</div>
+          <div class="wt-detail">Weather event flagged at the regional hub — 2-day delay</div>
+        </div>
+      </div>
+      <div class="wt-step">
+        <div class="wt-num">4</div>
+        <div class="wt-icon">✍️</div>
+        <div class="wt-content">
+          <div class="wt-action">Drafts a specific reply</div>
+          <div class="wt-detail">With the real delivery window and an apology for the delay</div>
+        </div>
+      </div>
+      <div class="wt-step">
+        <div class="wt-num">5</div>
+        <div class="wt-icon">📤</div>
+        <div class="wt-content">
+          <div class="wt-action">Sends it — and logs the ticket as resolved</div>
+          <div class="wt-detail">No human needed. Customer has a real answer in seconds.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENE 5: Trilogy closer -->
+  <div class="scene" id="scene-5">
+    <h2>This is how it<br>fits together.</h2>
+    <div class="teaser-box">
+      <p>
+        An <strong>Agent</strong> gets things done.<br>
+        <span class="dim">Takes what the LLM understands and what MCP connects — and acts.</span><br><br>
+        An <strong>LLM</strong> is how you talk to it.<br>
+        <span class="dim">Ask questions. Get answers grounded in data.</span><br><br>
+        <strong>MCP</strong> connects AI to your systems.<br>
+        <span class="dim">Your data, your rules, your world — live.</span>
+      </p>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="dots" id="dots"></div>
+<button class="nav-btn" id="btn-prev" onclick="go(-1)">← Back</button>
+<button class="nav-btn" id="btn-next" onclick="go(1)">Next →</button>
+
+<div class="progress-bar">
+  <div class="progress-fill" id="progress" style="width:20%"></div>
+</div>
+
+<script>
+  const total = 5;
+  let current = 1;
+  let autoTimer;
+
+  const dotsEl = document.getElementById('dots');
+  for (let i = 1; i <= total; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 1 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  }
+
+  function goTo(n) {
+    document.getElementById('scene-' + current).classList.remove('active');
+    current = Math.max(1, Math.min(total, n));
+    document.getElementById('scene-' + current).classList.add('active');
+    document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i + 1 === current));
+    document.getElementById('counter').textContent = current + ' / ' + total;
+    document.getElementById('progress').style.width = ((current / total) * 100) + '%';
+    document.getElementById('btn-prev').style.opacity = current === 1 ? '0.3' : '1';
+    document.getElementById('btn-next').textContent = current === total ? '↺ Restart' : 'Next →';
+    resetAuto();
+  }
+
+  function go(dir) {
+    if (dir === 1 && current === total) { goTo(1); return; }
+    goTo(current + dir);
+  }
+
+  function resetAuto() {
+    clearInterval(autoTimer);
+    autoTimer = setInterval(() => go(1), 10000);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') go(1);
+    if (e.key === 'ArrowLeft') go(-1);
+  });
+
+  goTo(1);
+</script>
+</body>
+</html>
