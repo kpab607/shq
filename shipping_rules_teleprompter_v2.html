@@ -1,0 +1,316 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  #tp-wrap {
+    background: #0a0a0a;
+    color: #f0f0e8;
+    font-family: 'Georgia', serif;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    min-height: 420px;
+  }
+  #controls {
+    background: #111;
+    border-bottom: 1px solid #2a2a2a;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  #controls label { font-size: 12px; color: #888; font-family: sans-serif; }
+  #controls input[type=range] { width: 100px; }
+  #controls span { font-size: 13px; color: #f0f0e8; font-family: sans-serif; min-width: 28px; }
+  .ctrl-btn {
+    background: transparent;
+    border: 1px solid #444;
+    color: #f0f0e8;
+    border-radius: 6px;
+    padding: 5px 14px;
+    font-size: 13px;
+    font-family: sans-serif;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .ctrl-btn:hover { background: #222; }
+  .ctrl-btn.active { background: #2a2a1a; border-color: #f5c842; color: #f5c842; }
+  #scroll-window {
+    height: 340px;
+    overflow: hidden;
+    position: relative;
+    padding: 0 32px;
+  }
+  #focus-line {
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    height: 2px;
+    background: #f5c842;
+    opacity: 0.25;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 2;
+  }
+  #fade-top, #fade-bottom {
+    position: absolute;
+    left: 0; right: 0;
+    height: 80px;
+    pointer-events: none;
+    z-index: 3;
+  }
+  #fade-top { top: 0; background: linear-gradient(to bottom, #0a0a0a, transparent); }
+  #fade-bottom { bottom: 0; background: linear-gradient(to top, #0a0a0a, transparent); }
+  #script-inner {
+    padding: 200px 0;
+    transition: transform 0.1s linear;
+  }
+  .line {
+    font-size: 22px;
+    line-height: 1.7;
+    color: #f0f0e8;
+    text-align: center;
+    padding: 4px 0;
+    opacity: 0.35;
+    transition: opacity 0.2s, font-size 0.2s;
+  }
+  .line.active { opacity: 1; font-size: 26px; }
+  .line.near { opacity: 0.65; font-size: 24px; }
+  .section-label {
+    font-family: sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #f5c842;
+    text-align: center;
+    padding: 18px 0 6px;
+    opacity: 0.7;
+  }
+  #progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: #f5c842;
+    transition: width 0.2s;
+    opacity: 0.6;
+    z-index: 4;
+  }
+  #word-count {
+    font-size: 11px;
+    color: #888;
+    font-family: sans-serif;
+    margin-left: auto;
+  }
+</style>
+
+<div id="tp-wrap">
+  <div id="controls">
+    <button class="ctrl-btn active" id="btn-play" onclick="togglePlay()">▶ Play</button>
+    <button class="ctrl-btn" onclick="resetScript()">↺ Reset</button>
+    <label>Speed</label>
+    <input type="range" id="speed" min="1" max="10" value="4" oninput="updateSpeed(this.value)">
+    <span id="speed-val">4</span>
+    <label>Size</label>
+    <input type="range" id="fontsize" min="14" max="36" value="22" oninput="updateFont(this.value)">
+    <span id="word-count"></span>
+  </div>
+  <div id="scroll-window">
+    <div id="focus-line"></div>
+    <div id="fade-top"></div>
+    <div id="fade-bottom"></div>
+    <div id="script-inner"></div>
+    <div id="progress" style="width:0%"></div>
+  </div>
+</div>
+
+<script>
+const script = [
+  { type: 'section', text: 'Hook' },
+  { type: 'line', text: "If you want more customization in your shipping than most platforms offer out of the box —" },
+  { type: 'line', text: "or if your business sells products with special requirements —" },
+  { type: 'line', text: "or if you need to manage shipping across different regions or customer types —" },
+  { type: 'line', text: "ShipperHQ's Shipping Rules can help you set shipping rates at checkout your way." },
+  { type: 'section', text: 'What are shipping rules?' },
+  { type: 'line', text: "Shipping Rules are a powerful tool that lets you set custom shipping logic" },
+  { type: 'line', text: "that will automatically modify the shipping options shown to your shoppers at checkout." },
+  { type: 'line', text: "This logic can be based on almost anything:" },
+  { type: 'line', text: "who the shopper is and where they're shipping to, the items in their cart, or even the time of year." },
+  { type: 'line', text: "And based on that, you can show or hide specific shipping methods," },
+  { type: 'line', text: "add fees or surcharges, offer a discount on shipping," },
+  { type: 'line', text: "or even block checkout entirely for certain destinations." },
+  { type: 'line', text: "The result is a checkout experience that reflects your actual business rules," },
+  { type: 'line', text: "decreases customer friction at checkout, and simplifies your fulfillment process." },
+  { type: 'section', text: 'Real-world examples' },
+  { type: 'line', text: "Let's walk through some real-world examples of how businesses use Shipping Rules." },
+  { type: 'line', text: "Maybe you want to offer free shipping on domestic purchases, but not for oversized items." },
+  { type: 'line', text: "Maybe you want to offer ground shipping to the continental US," },
+  { type: 'line', text: "but want to handle Hawaii and Alaska differently due to carrier costs." },
+  { type: 'line', text: "Or maybe you can't ship your products to certain states due to local laws." },
+  { type: 'line', text: "With a shipping rule, you select which shipping methods are shown or hidden to those areas —" },
+  { type: 'line', text: "even based on which products are in the order." },
+  { type: 'line', text: "If you sell restricted materials like lithium batteries or aerosols," },
+  { type: 'line', text: "air and express shipping methods aren't an option." },
+  { type: 'line', text: "A shipping rule can automatically detect those items and hide all disallowed methods." },
+  { type: 'line', text: "Now that you've got an idea of what Shipping Rules can do," },
+  { type: 'line', text: "it's time to see how easy they are to set up." },
+  { type: 'section', text: 'Walkthrough' },
+  { type: 'line', text: "Start in your ShipperHQ dashboard —" },
+  { type: 'line', text: "click Shipping Rules in the left navigation, then select New." },
+  { type: 'line', text: "First, choose what you want the rule to do." },
+  { type: 'line', text: "For this example, we'll select Offer Free Shipping." },
+  { type: 'line', text: "Next, choose how the rule should apply." },
+  { type: 'line', text: "We'll select Each Shipment in the Cart, so the rule applies to the shipment as a whole." },
+  { type: 'line', text: "Now choose which shipping method should be free." },
+  { type: 'line', text: "If you don't see any methods, that's probably because you haven't set up your carriers yet." },
+  { type: 'line', text: "For our example, we'll select UPS Ground." },
+  { type: 'line', text: "When this rule applies, customers will see UPS Ground at $0 during checkout." },
+  { type: 'line', text: "You can add more than one method here if needed." },
+  { type: 'section', text: 'Conditions' },
+  { type: 'line', text: "This is where shipping rules really start to shine!" },
+  { type: 'line', text: "We'll add two conditions: price and weight." },
+  { type: 'line', text: "Condition one is Price." },
+  { type: 'line', text: "The cart total needs to be $100 or more —" },
+  { type: 'line', text: "so we'll set the price condition to greater than or equal to $100, applied to the Whole Cart." },
+  { type: 'line', text: "Condition two is Weight." },
+  { type: 'line', text: "We don't want free shipping to apply to a heavy order where the cost no longer makes sense —" },
+  { type: 'line', text: "so we'll set the cart weight to less than or equal to 10 pounds, also applied to the Whole Cart." },
+  { type: 'line', text: "Because both conditions are set to Whole Cart," },
+  { type: 'line', text: "ShipperHQ looks at the combined price and weight of everything in the order." },
+  { type: 'line', text: "If you need to get more specific, you can build rules around individual items," },
+  { type: 'line', text: "shipping groups, destinations, origins, and more." },
+  { type: 'line', text: "Click Continue." },
+  { type: 'section', text: 'Naming' },
+  { type: 'line', text: "Now name your rule something clear —" },
+  { type: 'line', text: "like: Free Shipping — Over $100, Under 10 lbs." },
+  { type: 'line', text: "That way, when you have more rules later, you're not guessing what each one does." },
+  { type: 'line', text: "Add an internal description so your teammates know exactly what the rule is for and why it exists." },
+  { type: 'line', text: "Then click Finish." },
+  { type: 'section', text: 'Pro tip' },
+  { type: 'line', text: "Here's a pro tip: once you've built a rule, you can duplicate it and use it as the starting point for your next rule." },
+  { type: 'line', text: "So if you need a similar rule for another product group, region, or shipping method —" },
+  { type: 'line', text: "you don't have to start from zero." },
+  { type: 'line', text: "Just adjust the conditions." },
+  { type: 'line', text: "That can save a lot of time once your rule library starts growing." },
+  { type: 'section', text: 'Demo' },
+  { type: 'line', text: "Now let's see it work." },
+  { type: 'line', text: "The cart total is over $100, but the weight is more than 10 pounds —" },
+  { type: 'line', text: "so free shipping does not apply and the regular UPS Ground rate shows." },
+  { type: 'line', text: "Remove the heavy item, keep the cart over $100," },
+  { type: 'line', text: "and drop the total weight to 10 pounds or less —" },
+  { type: 'line', text: "now free shipping kicks in automatically." },
+  { type: 'section', text: 'Close' },
+  { type: 'line', text: "You started with a simple example —" },
+  { type: 'line', text: "but the same building blocks — conditions, methods, scope —" },
+  { type: 'line', text: "scale to handle your most complex shipping scenarios." },
+  { type: 'line', text: "Set the logic once, and let ShipperHQ apply it for you." },
+  { type: 'line', text: "Now that you've seen how it works, give it a try!" },
+  { type: 'line', text: "And when you're ready to go further, the ShipperHQ Knowledge Base has articles and videos covering all kinds of setups —" },
+  { type: 'line', text: "it's a great place to explore what's possible." },
+];
+
+const inner = document.getElementById('script-inner');
+const nodes = [];
+let lineCount = 0;
+
+script.forEach((item) => {
+  const el = document.createElement('div');
+  if (item.type === 'section') {
+    el.className = 'section-label';
+    el.textContent = item.text;
+  } else {
+    el.className = 'line';
+    el.textContent = item.text;
+    el.dataset.index = lineCount++;
+  }
+  inner.appendChild(el);
+  nodes.push({ el, item });
+});
+
+const lines = Array.from(inner.querySelectorAll('.line'));
+const totalLines = lines.length;
+document.getElementById('word-count').textContent = totalLines + ' lines';
+
+let currentLine = 0;
+let playing = false;
+let animFrame = null;
+let lastTime = null;
+let accumulator = 0;
+let baseSpeed = 4;
+
+function getInterval() { return 4000 / baseSpeed; }
+
+function setActiveLine(idx) {
+  lines.forEach((el, i) => {
+    el.classList.remove('active', 'near');
+    const d = Math.abs(i - idx);
+    if (d === 0) el.classList.add('active');
+    else if (d === 1) el.classList.add('near');
+  });
+  const active = lines[idx];
+  if (!active) return;
+  const windowEl = document.getElementById('scroll-window');
+  const innerEl = document.getElementById('script-inner');
+  const windowH = windowEl.offsetHeight;
+  const offset = active.offsetTop - windowH / 2 + active.offsetHeight / 2;
+  innerEl.style.transform = `translateY(${-offset}px)`;
+  document.getElementById('progress').style.width = (((idx + 1) / totalLines) * 100) + '%';
+}
+
+function step(ts) {
+  if (!lastTime) lastTime = ts;
+  const dt = ts - lastTime;
+  lastTime = ts;
+  accumulator += dt;
+  if (accumulator >= getInterval()) {
+    accumulator = 0;
+    if (currentLine < totalLines - 1) {
+      currentLine++;
+      setActiveLine(currentLine);
+    } else {
+      playing = false;
+      document.getElementById('btn-play').textContent = '▶ Play';
+      document.getElementById('btn-play').classList.remove('active');
+      return;
+    }
+  }
+  if (playing) animFrame = requestAnimationFrame(step);
+}
+
+function togglePlay() {
+  playing = !playing;
+  const btn = document.getElementById('btn-play');
+  if (playing) {
+    btn.textContent = '⏸ Pause';
+    btn.classList.add('active');
+    lastTime = null;
+    accumulator = 0;
+    animFrame = requestAnimationFrame(step);
+  } else {
+    btn.textContent = '▶ Play';
+    btn.classList.remove('active');
+    cancelAnimationFrame(animFrame);
+  }
+}
+
+function resetScript() {
+  playing = false;
+  cancelAnimationFrame(animFrame);
+  document.getElementById('btn-play').textContent = '▶ Play';
+  document.getElementById('btn-play').classList.remove('active');
+  currentLine = 0;
+  setActiveLine(0);
+  document.getElementById('progress').style.width = '0%';
+}
+
+function updateSpeed(v) {
+  baseSpeed = parseInt(v);
+  document.getElementById('speed-val').textContent = v;
+}
+
+function updateFont(v) {
+  lines.forEach(el => { el.style.fontSize = v + 'px'; });
+}
+
+setActiveLine(0);
+</script>
